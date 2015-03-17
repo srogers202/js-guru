@@ -1,3 +1,25 @@
+/*
+* My own custom test library (inspired by chapter 2 from the book "Secrets of the JavaScript Ninja")
+*
+* Each test creates a new scope and can accept multiple assertsions
+* 
+* // Example
+* 
+* initTest('Start Test Suite');
+*
+* test(function() {
+*    
+*   assert(true, 'First Assertion');
+*   
+*    function throwException() {
+*      badVar = 1;
+*    }
+*
+*    assertException(throwException, 'Second Assertion');      
+*
+* }, 'Test Description');
+*
+*/
 function initTest(name) {
   var results = document.getElementById('results');
   var header = document.createElement('h3');
