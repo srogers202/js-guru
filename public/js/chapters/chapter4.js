@@ -5,8 +5,6 @@ initTest('Chapter 4 - Advanced Functions');
 // --------------------------------------------------
 // Recursive functions
 // --------------------------------------------------
-
-// perform tests
 test('Recursive functions', function() {
 
     function strMatchRec(str1, str2) {
@@ -26,7 +24,9 @@ test('Recursive functions', function() {
     assert(!strMatchRec([], {}), 'Recursive function validation works');
 });
 
-//perform test
+// --------------------------------------------------
+// Recursive methods
+// --------------------------------------------------
 test('Recursive methods with named references to anonymous functions', function() {
     'use strict;';
     var swimmer = {
@@ -53,7 +53,9 @@ test('Recursive methods with named references to anonymous functions', function(
     }, 'Recursive methods don\'t work with anonymous functions and references to the parent object');
 });
 
-//perform test
+// --------------------------------------------------
+// Recursive methods
+// --------------------------------------------------
 test('Recursive methods with named references to anonymous functions using \'this\'', function() {
     'use strict;';
     var swimmer = {
@@ -80,7 +82,9 @@ test('Recursive methods with named references to anonymous functions using \'thi
     }, 'Recursive methods don\'t work with anonymous functions when the reference name changes');
 });
 
-//perform test
+// --------------------------------------------------
+// Recursive methods
+// --------------------------------------------------
 test('Recursive methods work! We used a named function literal. The function name persists!', function() {
     
     var swimmer = {
@@ -106,8 +110,9 @@ test('Recursive methods work! We used a named function literal. The function nam
 
 });
 
-
-//perform tests
+// --------------------------------------------------
+// Function properties
+// --------------------------------------------------
 test('Adding properties to functions', function() {
     "use strict";
     // process runner. Add functions to run on loop
@@ -158,7 +163,7 @@ test('Adding properties to functions', function() {
         startLoop: function() {
             this.loopOnce();
             var _this = this;
-            setTimeout((function()) { // ES6 loop possible here! Inherits parent scope(s)
+            setTimeout(function() { // ES6 loop possible here! Inherits parent scope(s)
                 if (_this.status === 'start') {
                     // continue loop
                     _this.startLoop();
@@ -182,12 +187,12 @@ test('Adding properties to functions', function() {
 
     // named literal
     function func1() {
-        console.log('func1');
+        //console.log('func1');
     }
 
     // anonymous function
     var func2 = function() {
-        console.log('func2');
+        //console.log('func2');
     }
 
     assert(runner.add(func1), 'Adding a new function succeeds');
@@ -208,3 +213,65 @@ test('Adding properties to functions', function() {
     }, 10000);
 
 });
+
+// --------------------------------------------------
+// Function memoization
+// --------------------------------------------------
+test('Self Memoization', function() {
+
+    function isPrime(value) {
+        if (typeof isPrime.cache !== 'object') isPrime.cache = {};
+
+        if (isPrime.cache[value] != null) {
+            return { 'isPrime': isPrime.cache[value], 'iterations': 1};
+        }
+        var prime = value != 1; // 1 cannot be prime
+        var iterations = 0;
+        for (var i=2; i< value; i++) {
+
+            iterations++;
+            if (value % i == 0) {
+                prime = false;
+                break;
+            }
+            if ((value / i) < 2) {
+                break;
+            }
+        }
+        return {'isPrime': isPrime.cache[value] = prime, 'iterations': iterations};
+    }
+
+    assert(isPrime(23).isPrime, 'isPrime works for primes!');
+    assert(!isPrime(50).isPrime, 'isPrime works for non primes!')
+    assert(isPrime(3571).isPrime, 'big prime works too');
+    assert(isPrime(3491).iterations > 100, 'big primes take a lot of iterations');
+    assert(isPrime(3491).iterations * isPrime(3571).iterations * isPrime(50).iterations * isPrime(23).iterations === 1, 'but only once!');
+});
+
+// --------------------------------------------------
+// Extending arrays
+// --------------------------------------------------
+test('Extending arrays', function() {
+
+    // an array to store ONLY the types of objects passed in (pretty useless, i know)
+    var typeArray = {
+
+        // the Array.prototype.push will update this
+        length: 0,
+
+        // create an add method to add the type
+        add: function(obj) {
+            // Reuse the Array.prototype.call method
+            Array.prototype.push.call(this, typeof obj);
+        }
+    }
+
+    typeArray.add('this is a string');
+    assert(typeArray[0] === 'string', 'Extended array works!');
+
+    typeArray.add({'an': 'object'});
+    assert(typeArray[1] === 'object', 'Extended array works!');
+    assert(typeArray.length == 2, 'Extended array length works too')
+
+});
+
