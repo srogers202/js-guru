@@ -7,7 +7,7 @@
 * 
 * initTest('Start Test Suite');
 *
-* test(function() {
+* test('Test Name', function() {
 *    
 *   assert(true, 'First Assertion');
 *   
@@ -17,7 +17,7 @@
 *
 *    assertException(throwException, 'Second Assertion');      
 *
-* }, 'Test Description');
+* });
 *
 */
 function initTest(name) {

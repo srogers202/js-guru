@@ -82,7 +82,7 @@ test('Recursive methods with named references to anonymous functions using \'thi
 
 //perform test
 test('Recursive methods work! We used a named function literal. The function name persists!', function() {
-    'use strict;';
+    
     var swimmer = {
         race: function perform(energyLevel, distance) { // anonymous functions
             // Set distance if not a number
@@ -103,5 +103,108 @@ test('Recursive methods work! We used a named function literal. The function nam
     swimmer = {};
 
     assert(triathalete.swim(10) === '100m', 'Recursive method works with named function literal');
+
+});
+
+
+//perform tests
+test('Adding properties to functions', function() {
+    "use strict";
+    // process runner. Add functions to run on loop
+    var runner = {
+        // keep track of the next id
+        nextId: 1,
+
+        // store functions
+        cache: {},
+
+        //status
+        status: 'pause',
+
+        // add a function to the cache (disallow dupes)
+        add: function(fn) {
+            // Check the function's cache id. This is where the property
+            // setting makes the function efficient. We also set the
+            // execution count to 0. This another use of the function properties
+            if (!fn.cacheId) {
+                fn.cacheId = this.nextId++;
+                fn.executionCount = 0;
+                return !!(this.cache[fn.cacheId] = fn);
+            }
+        },
+
+        // remove a function from the cache
+        remove: function(fn) {
+            if (fn.cacheId && this.cache[fn.cacheId]) {
+                this.cache[fn.cacheId] = function() {};
+                fn.cacheId = false;
+            }
+        },
+
+        // begin
+        start: function() {
+            if (this.status !== 'start') {
+                this.startLoop();
+                this.status = 'start';
+            }
+        },
+
+        // pause the loop
+        pause: function() {
+            this.status = 'pause';
+        },
+
+        // run loop recursively
+        startLoop: function() {
+            this.loopOnce();
+            var _this = this;
+            setTimeout((function()) { // ES6 loop possible here! Inherits parent scope(s)
+                if (_this.status === 'start') {
+                    // continue loop
+                    _this.startLoop();
+                }
+            }, 1000);
+        },
+
+        // run each function once
+        loopOnce: function() {
+            
+            for(var i=1;i<this.nextId;i++) {
+                if (typeof this.cache[i] === 'function') {
+                    this.cache[i]();
+                    var name = 'this';
+                    // incrememnt execution count -- using property of function
+                    this.cache[i].executionCount++;
+                }
+            }
+        }
+    }
+
+    // named literal
+    function func1() {
+        console.log('func1');
+    }
+
+    // anonymous function
+    var func2 = function() {
+        console.log('func2');
+    }
+
+    assert(runner.add(func1), 'Adding a new function succeeds');
+    assert(!runner.add(func1), 'Adding an existing doesn\'t succeed. The function property worked');
+    
+    runner.add(func2);
+    
+    runner.loopOnce();
+
+    assert(func1.executionCount === 1, 'The executionCount property was set correctly for named literal function');
+    assert(func2.executionCount === 1, 'The executionCount property was set correctly for anonymous literal function');
+
+    runner.start();
+
+    setTimeout(function() {
+        runner.pause();
+        console.log(func1.executionCount);
+    }, 10000);
 
 });
